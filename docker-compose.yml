@@ -1,0 +1,54 @@
+version: '3.3'
+
+services:
+  database_postgres_image:
+    image: postgres
+    container_name: password-manager-db
+    environment: 
+      POSTGRES_USER : user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: database_postgres_image
+    restart: unless-stopped
+    networks:
+      - app-network
+    ports:
+      - "5432:5432"
+  backend:
+    container_name: password-manager-backend
+    build: 
+      context: ./
+      dockerfile: docker/BackendDockerfile
+    command: sh -c " cd backend/password_management_api && python manage.py makemigrations && python manage.py migrate && python manage.py loaddata db.json && python manage.py runserver 0.0.0.0:8000 --settings=password_management_api.settings"  
+    ports:
+      - "8000:8000"
+    environment:
+      POSTGRES_NAME: postgres
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_HOST: database_postgres_image
+    volumes:
+      - .:/app
+    networks:
+      - app-network
+    depends_on:
+      - database_postgres_image
+
+  frontend:
+    container_name: password-manager-frontend
+    build:
+      context: ./
+      dockerfile: docker/FrontendDockerfile    
+    command: sh -c " cd frontend/ && npm install --silent && npm start"
+    ports:
+      - "8080:8080"
+    volumes:
+     - .:/app
+    networks:
+      - app-network
+    depends_on:
+      - backend
+
+
+networks:
+    app-network:
+        driver: bridge

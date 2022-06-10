@@ -1,0 +1,5 @@
+Django==4.0.3
+psycopg2
+httplib2
+django-cors-headers
+django-environ==0.4.5
