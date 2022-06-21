@@ -38,7 +38,7 @@ services:
     build:
       context: ./
       dockerfile: docker/FrontendDockerfile    
-    command: sh -c " cd frontend/ && npm install --silent && npm start"
+    command: sh -c " cd frontend/ && npm install && npm start"
     ports:
       - "8080:8080"
     volumes:

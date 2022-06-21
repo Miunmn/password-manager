@@ -9,14 +9,38 @@ import TextField from '@mui/material/TextField';
 import Grid from "@mui/material/Grid"
 import { Button } from "@mui/material";
 import Modal from '@mui/material/Modal';
+import loginRequest from "../../api/loginRequest";
+import { useNavigate } from 'react-router-dom'
+
+//Redux
+import { useDispatch } from 'react-redux';
+import { setSelectedAccount } from "../../redux/slices/account";
 
 const Login = () => {
   const [userString, setUserString] = useState("");
   const [password, setPassword] = useState("");
   const [confirmAccountModal, setConfirmAccountModal] = useState(false)
   const [confCode, setConfcode] = useState("")
+  const dispatch = useDispatch();
+  const navigate = useNavigate()
 
+  const handleLogin = () => {
+    let body = {
+        username: userString,
+        password: password
+    }
 
+    loginRequest(body)
+    .then(res => {
+        console.log(res);
+        dispatch(setSelectedAccount(true));
+        navigate('/main');
+    })
+    .catch(err => {
+        console.log('error:', err.message);
+    })
+
+  }
   const ModalStyles = () => {
     return { 
       position: 'absolute',
@@ -56,7 +80,7 @@ const Login = () => {
                             <TextField type='password' value={password || ''} onChange={(e) => setPassword(e.target.value)} fullWidth id="filled-basic" label="Password" variant="filled" />
                         </Grid>
                     </Grid>
-                    <Button className="bg-green-primary" style={{ marginTop: "10%", width: "50%", float: "inherit" }}  variant="contained">Log in</Button>
+                    <Button className="bg-green-primary" style={{ marginTop: "10%", width: "50%", float: "inherit" }}  onClick={handleLogin} variant="contained">Log in</Button>
       
                 </Box>
             </div>
@@ -79,7 +103,7 @@ const Login = () => {
                 onChange={(e) => setConfcode(e.target.value)}
                 fullWidth
                 id="outlined-basic" label="Code" variant="outlined" />
-            <Button className="bg-green-primary" style={{ marginTop: "10%", width: "50%", float: "right" }}  variant="contained">Confirm Account</Button>   
+            <Button  className="bg-green-primary" style={{ marginTop: "10%", width: "50%", float: "right" }}  variant="contained">Confirm Account</Button>   
         </Box>
         </Modal>
     </div>
