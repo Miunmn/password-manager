@@ -7,6 +7,8 @@ from django.db.models import Q
 
 from api.models import User
 
+import json
+
 class UserManagerView(APIView):
   def get(self, request):
     try:      
@@ -17,8 +19,11 @@ class UserManagerView(APIView):
 
 class LoginManagerView(APIView):
   def post(self, request, format=None):
-    username = request.data['username']
-    password = request.data['password']
+    body_unicode = request.body.decode('utf-8')
+    body = json.loads(body_unicode)
+
+    username = body['username']
+    password = body['password']
 
     user = User.objects.filter(Q(username=username))
     if len(user) == 0:
