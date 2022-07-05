@@ -39,7 +39,7 @@ class SignUpView(APIView):
     hashed_password = hashlib.sha256(password + salt_encoded)
     print(salt, hashed_password)
 
-    new_user = User(username=username, salt=salt, password=hashed_password)
+    new_user = User(username=username, salt=salt, password=hashed_password.hexdigest())
     try:
       new_user.save()
     except Exception as es:
@@ -70,7 +70,8 @@ class LoginManagerView(APIView):
     
     hashed_password = hashlib.sha256(password + salt)
 
-    if user.password == hashed_password:
+    print(user.password, hashed_password.hexdigest() )
+    if user.password == hashed_password.hexdigest():
       return Response(data='Logged in!', status=200)
 
     return Response(data="Incorrect credentials", status=401)

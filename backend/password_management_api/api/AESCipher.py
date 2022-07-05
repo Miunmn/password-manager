@@ -3,7 +3,7 @@ from Crypto import Random
 import hashlib
 import base64
 from django.db.models import Q
-from api.resources import User, PasswordsManagerView
+
 class AESCipher:
     def __init__(self, key): 
       self.bs = AES.block_size
