@@ -30,7 +30,7 @@ class LoginManagerView(APIView):
     if len(user) == 0:
       return Response(data="No users found", status=404)
 
-    hashed_password = hashlib.sha256(password + user.salt)
+    hashed_password = hashlib.sha256(password + user.salt).hexdigest()
     if user.password == hashed_password:
       return Response(data='Logged in!', status=200)
 
