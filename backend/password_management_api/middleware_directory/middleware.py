@@ -1,30 +1,72 @@
 from Crypto.Cipher import AES
-import hashlib
 from api import AESCipher
+from rest_framework.response import Response
 
-# def security_middleware(get_response):
-#   # One-time configuration and initialization.
+from django.db.models import Q
 
-#   def middleware(request):
-#     # Code to be executed for each request before
-#     # the view (and later middleware) are called.
+from backend.password_management_api.api.models import StoredPasswords 
 
-#     key = hashlib.sha256(request.data['password'] + request.data['color'])
-#     aes = AESCipher(key=key)
+import json
+"""
+def verify_user(request):
+    username = request.data['username']
+    password = request.data['password']
+    color = request.data['color']
 
-#     response = get_response(request)
+    unhashed_key = password + color
+    aes = AESCipher(key=unhashed_key)
+    encrypted_stored_passwords_obj = StoredPasswords.objects.filter(Q(username=username)).passwords
+    decrypted_stored_passwords_obj = aes.decrypt(encrypted_stored_passwords_obj)
 
-#     # Code to be executed for each request/response after
-#     # the view is called.
+    try:
+        data = json.loads(decrypted_stored_passwords_obj)
+        return Response(data=encrypted_stored_passwords_obj, status=200)
+    except Exception as e:
+        return Response(data=f'Decryption returned a non-valid JSON object. Error: {e}', status=401)
 
-#     return response
+def security_middleware(get_response):
+   # One-time configuration and initialization.
 
-#   return middleware
+   def middleware(request):
+    # Code to be executed for each request before
+    # the view (and later middleware) are called.
+    
+    response = get_response(request)
+
+    # Code to be executed for each request/response after
+    # the view is called.
+
+    return response
+
+   return middleware
+"""
 
 class CustomMiddleware:
-    def __init__(self, get_response):
-        self.get_response = get_response
+    #def __init__(self, get_response):
+    #    self.get_response = get_response
+
+    def __init__(self):
+        pass
+
+    def verify_user(self, request):
+        username = request.data['username']
+        password = request.data['password']
+        color = request.data['color']
+
+        unhashed_key = password + color
+        aes = AESCipher(key=unhashed_key)
+        encrypted_stored_passwords_obj = StoredPasswords.objects.filter(Q(username=username)).passwords
+        decrypted_stored_passwords_obj = aes.decrypt(encrypted_stored_passwords_obj)
+
+        try:
+            data = json.loads(decrypted_stored_passwords_obj)
+            return Response(data=encrypted_stored_passwords_obj, status=200)
+        except Exception as e:
+            return Response(data=f'Decryption returned a non-valid JSON object. Error: {e}', status=401)
 
     def __call__(self, request):
-      response = self.get_response(request)
+      print("custom middleware before next middleware/view")
+      #response = self.get_response(request)
+      response = self.verify_user(request)
+      print("custom middleware after response or previous middleware")
       return response
