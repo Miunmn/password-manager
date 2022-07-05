@@ -6,6 +6,7 @@ import { Routes, Route} from "react-router-dom";
 import Login from './pages/Login/Login';
 import Main from './pages/Main/Main';
 import PrivateRoute from './utils/PrivateRoute';
+import SignUp from './pages/SignUp/SignUp';
 
 import { UserContext } from "./utils/UserContext";
 import { useSelector } from "react-redux";
@@ -24,6 +25,7 @@ function App() {
       <div className='App'>
           <Routes>
               <Route path='/' element={<Login />}/> 
+              <Route path='/signup' element={<SignUp />} />
               <Route path='/main' element={<PrivateRoute component={Main}/>}/>
           </Routes>
       </div>
