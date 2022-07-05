@@ -26,7 +26,5 @@ class CustomMiddleware:
         self.get_response = get_response
 
     def __call__(self, request):
-      print("custom middleware before next middleware/view")
       response = self.get_response(request)
-      print("custom middleware after response or previous middleware")
       return response
