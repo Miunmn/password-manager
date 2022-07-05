@@ -37,16 +37,16 @@ class LoginManagerView(APIView):
     return Response(data="Incorrect credentials", status=401)
 
 def modify_passwords(username, color, obj=None, delete=False):
-      aes = AESCipher(key=username+color)
-      encrypted_passwords = StoredPasswords.objects.filter(Q(username=username)).passwords
-      decrypted_passwords = aes.decrypt(encrypted_passwords)
-      decrypted_passwords = json.loads(decrypted_passwords)
-      if not delete:
-        decrypted_passwords.update(obj)
-      else:
-        decrypted_passwords.pop(obj)
-      decrypted_passwords = json.dumps(decrypted_passwords)
-      return aes.encrypt(decrypted_passwords)
+    aes = AESCipher(key=username+color)
+    encrypted_passwords = StoredPasswords.objects.filter(Q(username=username)).passwords
+    decrypted_passwords = aes.decrypt(encrypted_passwords)
+    decrypted_passwords = json.loads(decrypted_passwords)
+    if not delete:
+      decrypted_passwords.update(obj)
+    else:
+      decrypted_passwords.pop(obj)
+    decrypted_passwords = json.dumps(decrypted_passwords)
+    return aes.encrypt(decrypted_passwords)
   
 class PasswordsManagerView(APIView):
   def post(self, request, format=None):
@@ -115,5 +115,3 @@ class PasswordsManagerView(APIView):
       return Response(data="Deleted", status=200)
     except Exception as e:
       return Response(data=f"Error: {e}", status=500)
-
-    return Response(data="Deleted", status=200)
