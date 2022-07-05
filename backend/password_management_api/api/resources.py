@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from django.db.models import Q
 
-from backend.password_management_api.models import User
+from api.models import User
 
 class UserManagerView(APIView):
   def get(self, request):
