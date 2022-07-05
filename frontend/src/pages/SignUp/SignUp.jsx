@@ -1,7 +1,8 @@
 import React, {useState} from "react";
 import './SignUp.css';
 
-import {signupRequest} from "../../api/signupRequest"
+import signupRequest from "../../api/signupRequest";
+
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
 import Grid from "@mui/material/Grid"
@@ -16,7 +17,15 @@ const SignUp = () => {
   const [confCode, setConfcode] = useState("")
 
   const register = () => {
-    console.log(`userString: ${userString}, password: ${password}`)
+    // console.log(`userString: ${userString}, password: ${password}`)
+    signupRequest({username: userString, password: password})
+    .then(res=>{
+      console.log("res", res)
+    })
+    .catch(error=>{
+      // console.log("error", error)
+      alert(error.response.data)
+    })
   }
 
   return (
