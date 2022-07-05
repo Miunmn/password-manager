@@ -6,8 +6,8 @@ from django.db.models import Q
 from api.resources import User, PasswordsManagerView
 class AESCipher:
     def __init__(self, key): 
-        self.bs = AES.block_size
-        self.key = hashlib.sha256(key.encode()).digest()
+      self.bs = AES.block_size
+      self.key = hashlib.sha256(key.encode()).digest()
 
     def encrypt(self, raw):
       raw = self._pad(raw)

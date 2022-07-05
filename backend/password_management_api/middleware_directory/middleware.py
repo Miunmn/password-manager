@@ -46,9 +46,12 @@ class CustomMiddleware:
        self.get_response = get_response
 
     def verify_user(self, request):
-        username = request.data['username']
-        password = request.data['password']
-        color = request.data['color']
+        body_unicode = request.body.decode('utf-8')
+        body = json.loads(body_unicode)
+
+        username = body['username']
+        password = body['password']
+        color = body['color']
 
         unhashed_key = password + color
         aes = AESCipher(key=unhashed_key)
