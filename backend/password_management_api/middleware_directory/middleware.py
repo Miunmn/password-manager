@@ -4,7 +4,7 @@ from rest_framework.response import Response
 
 from django.db.models import Q
 
-from backend.password_management_api.api.models import StoredPasswords 
+from api.models import StoredPasswords 
 
 import json
 """
@@ -42,11 +42,8 @@ def security_middleware(get_response):
 """
 
 class CustomMiddleware:
-    #def __init__(self, get_response):
-    #    self.get_response = get_response
-
-    def __init__(self):
-        pass
+    def __init__(self, get_response):
+       self.get_response = get_response
 
     def verify_user(self, request):
         username = request.data['username']
