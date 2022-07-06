@@ -1,6 +1,8 @@
 import React, {useState} from "react";
 import './SignUp.css';
+// import sha from 'sha';
 
+import jsSha256 from "js-sha256";
 import signupRequest from "../../api/signupRequest";
 
 import Box from '@mui/material/Box';
@@ -17,8 +19,11 @@ const SignUp = () => {
   const [confCode, setConfcode] = useState("")
 
   const register = () => {
-    // console.log(`userString: ${userString}, password: ${password}`)
-    signupRequest({username: userString, password: password})
+    console.log(`userString: ${userString}, password: ${password}`)
+    const hash = jsSha256.sha256.create();
+    hash.update(password)
+
+    signupRequest({username: userString, password: hash.hex()})
     .then(res=>{
       console.log("res", res)
     })

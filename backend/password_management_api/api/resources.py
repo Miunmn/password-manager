@@ -37,14 +37,21 @@ class SignUpView(APIView):
     salt_encoded = salt.encode('utf-8')
 
     hashed_password = hashlib.sha256(password + salt_encoded)
-    print(salt, hashed_password)
-
-    new_user = User(username=username, salt=salt, password=hashed_password.hexdigest())
+    # print(salt, hashed_password)
+  
     try:
-      new_user.save()
-    except Exception as es:
+      new_user = User.objects.create(username=username, salt=salt, password=hashed_password.hexdigest())  
+    except Exception as e:
+      print(e)
       return Response(data="Error al guardar nuevo usuario", status=404)
-    return Response(data=[], status=200)
+
+    try:
+      stored_passwords = StoredPasswords.objects.create(passwords="", user_id=new_user)
+    except Exception as e:
+      print(e)
+      return Response(data="Error al guardar nuevo usuario", status=404)
+
+    return Response(data="Creado", status=200)
 
 class LoginManagerView(APIView):
   def post(self, request, format=None):
@@ -56,7 +63,7 @@ class LoginManagerView(APIView):
 
     try:
       user = User.objects.filter(username=username)
-    except e as Exception:
+    except Exception as e:
       print(e)
       return Response(data="Error while retrieving username", status=404)
 
@@ -76,9 +83,11 @@ class LoginManagerView(APIView):
 
     return Response(data="Incorrect credentials", status=401)
 
-def modify_passwords(username, color, obj=None, delete=False):
-    aes = AESCipher(key=username+color)
-    encrypted_passwords = StoredPasswords.objects.filter(Q(username=username)).passwords
+def modify_passwords(user_id, password, color, obj=None, delete=False):
+    aes = AESCipher(key=password+color)
+    encrypted_passwords = StoredPasswords.objects.filter(user_id=user_id)
+    encrypted_passwords = encrypted_passwords.first().passwords
+
     decrypted_passwords = aes.decrypt(encrypted_passwords)
     decrypted_passwords = json.loads(decrypted_passwords)
     if not delete:
@@ -94,17 +103,30 @@ class PasswordsManagerView(APIView):
     body = json.loads(body_unicode)
 
     username = body['username'] 
-    site = body['site']
     password = body['password']
-    color = body['color']
-
     if request.data['action'] == 'add':
-      obj = {'site': site, 'password': password}
+      # obj = {'site': site, 'password': password}
+      new_password_obj = body.get('new_password_obj', None)
+      color = body.get('color', None)
+      try:
+        user = User.objects.filter(username=username)
+      except Exception as e:
+        print(e)
+        return Response(data="Error while retrieving username", status=404)
 
-      encrypted_passwords = modify_passwords(username, color, obj)
+      if len(user) == 0:
+        return Response(data="No users found", status=404)
+
+      #
+      return Response(status=200, data="yay")
+      
+      user = user.first()
+      user_id = user.user_id
+
+      encrypted_passwords = modify_passwords(user_id, password, color, new_password_obj)
 
       try:
-        StoredPasswords.objects.filter(Q(username=username)).update(passwords=encrypted_passwords)
+        StoredPasswords.objects.filter(Q(user_id=user_id)).update(passwords=encrypted_passwords)
         return Response(data="Added", status=200)
       except Exception as e:
         return Response(data=f"Error: {e}", status=500)
@@ -114,12 +136,25 @@ class PasswordsManagerView(APIView):
       body = json.loads(body_unicode)
 
       username = body['username'] 
-      site = body['site']
       password = body['password']
-      color = body['color']
+      # color = body['color']
+      # print(username, password, color)
 
-      passwords = StoredPasswords.objects.filter(Q(username=username))
-      return Response(data=passwords, status=200)
+      try:
+        user = User.objects.filter(username=username)
+      except Exception as e:
+        print(e)
+        return Response(status=404)
+      user = user.first()
+      user_id = user.user_id
+      try:
+        stored_passwords = StoredPasswords.objects.filter(user_id=user_id)
+      except Exception as e:
+        print(e)
+        return Response(status=404)    
+
+      # print(stored_passwords.first())
+      return Response(data=stored_passwords.first().passwords, status=200)
   
   def put(self, request, format=None):
     body_unicode = request.body.decode('utf-8')

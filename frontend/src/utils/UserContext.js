@@ -8,5 +8,7 @@ export const UserContext = createContext({
     setLoading: null,
     account_id: null,
     user_id: null,
-    user_phone_number: null
+    user_phone_number: null,
+    hashedPasshword: null,
+    setHashedPassword: null
 });

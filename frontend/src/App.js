@@ -15,13 +15,14 @@ function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(false);
   const userState = useSelector(state => state.account.selectedAccount);
+  const [hashedPasshword, setHashedPassword] = useState(null);
 
   useEffect(()=>{
     setUser(userState)
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser, loading, setLoading}} >
+    <UserContext.Provider value={{ user, setUser, loading, setLoading, hashedPasshword, setHashedPassword }} >
       <div className='App'>
           <Routes>
               <Route path='/' element={<Login />}/> 

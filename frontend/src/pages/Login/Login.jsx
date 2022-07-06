@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 
 import './Login.css';
 
@@ -12,28 +12,40 @@ import Modal from '@mui/material/Modal';
 import loginRequest from "../../api/loginRequest";
 import { useNavigate } from 'react-router-dom'
 
+
+//Context 
+import { UserContext } from "../../utils/UserContext";
+
 //Redux
 import { useDispatch } from 'react-redux';
 import { setSelectedAccount } from "../../redux/slices/account";
+import sha256 from 'crypto-js/sha256';
 
 const Login = () => {
   const [userString, setUserString] = useState("");
   const [password, setPassword] = useState("");
   const [confirmAccountModal, setConfirmAccountModal] = useState(false)
   const [confCode, setConfcode] = useState("")
+  const { setHashedPassword } = useContext(UserContext);
+  const { setUser } = useContext(UserContext);
   const dispatch = useDispatch();
   const navigate = useNavigate()
 
   const handleLogin = () => {
+    const hashDigest = sha256(password);
+    const hash_hex = hashDigest.toString()
+
     let body = {
         username: userString,
-        password: password
+        password: hash_hex
     }
 
     loginRequest(body)
     .then(res => {
         console.log(res);
         dispatch(setSelectedAccount(true));
+        setHashedPassword(hash_hex)
+        setUser(userString)
         navigate('/main');
     })
     .catch(err => {
