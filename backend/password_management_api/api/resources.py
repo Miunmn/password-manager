@@ -30,6 +30,8 @@ class SignUpView(APIView):
     
     username = body.get('username', None)
     password = body.get('password', None)
+    color = body.get('color', None)
+    
     salt = ''.join(random.choice(string.digits) for i in range(10)) 
     
     # salt = salt.encode('utf-8')
@@ -37,13 +39,14 @@ class SignUpView(APIView):
     salt_encoded = salt.encode('utf-8')
 
     hashed_password = hashlib.sha256(password + salt_encoded)
-    # print(salt, hashed_password)
-  
+
     try:
       new_user = User.objects.create(username=username, salt=salt, password=hashed_password.hexdigest())  
     except Exception as e:
       print(e)
       return Response(data="Error al guardar nuevo usuario", status=404)
+
+    new_json_password = json.dumps({})
 
     try:
       stored_passwords = StoredPasswords.objects.create(passwords="", user_id=new_user)
@@ -83,6 +86,7 @@ class LoginManagerView(APIView):
 
     return Response(data="Incorrect credentials", status=401)
 
+    #hashed password  => color no hasheado
 def modify_passwords(user_id, password, color, obj=None, delete=False):
     aes = AESCipher(key=password+color)
     encrypted_passwords = StoredPasswords.objects.filter(user_id=user_id)
@@ -117,8 +121,8 @@ class PasswordsManagerView(APIView):
       if len(user) == 0:
         return Response(data="No users found", status=404)
 
-      #
-      return Response(status=200, data="yay")
+      # #
+      # return Response(status=200, data="yay")
       
       user = user.first()
       user_id = user.user_id
